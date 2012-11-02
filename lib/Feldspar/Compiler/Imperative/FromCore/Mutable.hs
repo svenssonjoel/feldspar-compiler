@@ -35,6 +35,8 @@
 module Feldspar.Compiler.Imperative.FromCore.Mutable where
 
 
+import Control.Monad (unless)
+import Control.Applicative
 
 import Language.Syntactic
 import Language.Syntactic.Constructs.Binding
@@ -134,22 +136,19 @@ instance (Compile dom dom, Project (CLambda Type) dom) => Compile MutableArray d
         tellProg [initArray loc l]
         tellProg [For "i" l 1 (Seq [assignProg (loc :!: ix) a'])]
 
-    compileProgSym GetArr _ loc (arr :* i :* Nil) = do
-        arr' <- compileExpr arr
-        i'   <- compileExpr i
-        assign loc (arr' :!: i')
-
     compileProgSym SetArr _ _ (arr :* i :* a :* Nil) = do
         arr' <- compileExpr arr
         i'   <- compileExpr i
-        a'   <- compileExpr a
-        assign (arr' :!: i') a'
+        compileProg (arr' :!: i') a
 
     compileProgSym a info loc args = compileExprLoc a info loc args
 
     compileExprSym ArrLength info (arr :* Nil) = do
         a' <- compileExpr arr
         return $ Fun (compileTypeRep (infoType info) (infoSize info)) "getLength" [a']
+
+    compileExprSym GetArr _ (arr :* i :* Nil) = -- do
+        (:!:) <$> compileExpr arr <*> compileExpr i
 
     compileExprSym a info args = compileProgFresh a info args
 
