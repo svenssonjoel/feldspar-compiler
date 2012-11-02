@@ -88,7 +88,9 @@ instance ( Compile dom dom
 
     compileProgSym Return info loc (a :* Nil)
         | MutType UnitType <- infoType info = return ()
-        | otherwise                         = compileProg loc a
+        | otherwise                         = do
+            (e, Bl ds body) <- confiscateBlock $ compileExpr a
+            unless (loc == e) $ tellProg [Block ds body] >> assign loc e
 
     compileProgSym When _ loc (c :* action :* Nil) = do
         c' <- compileExpr c
