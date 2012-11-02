@@ -47,15 +47,30 @@ import Feldspar.Core.Constructs.Mutable
 import Feldspar.Core.Constructs.MutableArray
 import Feldspar.Core.Constructs.MutableReference
 
-import Feldspar.Compiler.Imperative.Frontend hiding (Type)
+import Feldspar.Compiler.Imperative.Frontend hiding (Type,Variable)
 import Feldspar.Compiler.Imperative.FromCore.Interpretation
 
 
 instance ( Compile dom dom
          , Project (CLambda Type) dom
+         , Project (Variable :|| Type) dom
+         , Project MutableArray dom
+         , Project MutableReference dom
          )
       => Compile (MONAD Mut) dom
   where
+    -- TODO can we generalize the case "getRef r >>= \v -> f v" so that we do
+    -- not have to allocate "v"?
+    compileProgSym Bind _ loc (ma@(get :$ r) :* (lam :$ body@(set :$ _ :$ _ :$ a)) :* Nil)
+        | Just (SubConstr2 (Lambda v1)) <- prjLambda lam
+        , Just GetRef <- prj get
+        , Just SetArr <- prj set
+        , Just (C' (Variable v2)) <- prjF a
+        , v1 == v2
+        = do
+            var <- compileExpr r
+            withAlias v1 var $ compileProg loc body
+
     compileProgSym Bind _ loc (ma :* (lam :$ body) :* Nil)
         | Just (SubConstr2 (Lambda v)) <- prjLambda lam
         = do
