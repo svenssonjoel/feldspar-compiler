@@ -89,6 +89,9 @@ bindToThen y = runMutable $ do
 switcher :: Data Word8 -> Data Bool -> Data Word8
 switcher i = switch (value 0) [(true,i), (false,2)]
 
+issue126 :: Data WordN -> Data WordN
+issue126 a = switch 0 [(0,a),(0,1)] a
+
 tests :: TestTree
 tests = testGroup "RegressionTests"
     [ mkGoldTest example9 "example9" defaultOptions
@@ -113,6 +116,7 @@ tests = testGroup "RegressionTests"
     , mkBuildTest divConq3 "divConq3" defaultOptions
     , testProperty "bindToThen" (\y -> eval bindToThen y Prelude.== y)
     , mkGoldTest switcher "switcher" defaultOptions
+    , mkGoldTest issue126 "issue126" defaultOptions
     ]
 
 main :: IO ()
