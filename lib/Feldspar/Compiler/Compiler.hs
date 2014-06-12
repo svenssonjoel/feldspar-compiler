@@ -41,6 +41,7 @@ module Feldspar.Compiler.Compiler (
   , sicsOptions3
   , c99PlatformOptions
   , c99OpenMpPlatformOptions
+  , cilkPlatformOptions
   , tic64xPlatformOptions
   , SplitModule(..)
   , CompiledModule(..)
@@ -142,6 +143,9 @@ c99PlatformOptions              = defaultOptions
 
 c99OpenMpPlatformOptions :: Options
 c99OpenMpPlatformOptions        = defaultOptions { platform = c99OpenMp }
+
+cilkPlatformOptions :: Options
+cilkPlatformOptions             = defaultOptions { platform = cilk }
 
 tic64xPlatformOptions :: Options
 tic64xPlatformOptions           = defaultOptions { platform = tic64x }

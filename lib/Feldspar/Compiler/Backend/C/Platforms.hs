@@ -35,6 +35,7 @@ module Feldspar.Compiler.Backend.C.Platforms
     , tic64x
     , extend
     , deepCopy
+    , cilk
     ) where
 
 import Data.Maybe (fromMaybe)
@@ -87,6 +88,18 @@ c99OpenMp :: Platform
 c99OpenMp = c99 { name = "c99OpenMp"
                 , varFloating = False
                 }
+-- 
+cilk :: Platform
+cilk = c99 { name = "cilk"
+           , varFloating = False -- figure out what this means.
+           , includes =
+             [ "<cilk/cilk.h>",
+               "<stdint.h>",
+               "<string.h>",
+               "<math.h>",
+               "<stdbool.h>",
+               "<complex.h>" ]
+             }
 
 tic64x :: Platform
 tic64x = Platform {
